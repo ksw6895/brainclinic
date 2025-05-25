@@ -1,6 +1,6 @@
 from flask import Flask, send_from_directory, request, redirect, url_for, render_template
 
-app = Flask(__name__, template_folder='..')
+app = Flask(__name__, template_folder='../public')
 
 @app.route('/')
 def serve_html():
@@ -8,7 +8,7 @@ def serve_html():
 
 @app.route('/contact')
 def serve_contact_page():
-    return send_from_directory('..', 'contact.html')
+    return send_from_directory('../public', 'contact.html')
 
 @app.route('/submit_contact', methods=['POST'])
 def submit_contact():
@@ -20,7 +20,7 @@ def submit_contact():
 
 @app.route('/thank_you')
 def thank_you():
-    return send_from_directory('..', 'thank_you.html')
+    return send_from_directory('../public', 'thank_you.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
