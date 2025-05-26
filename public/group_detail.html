@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ group.name }}</title>
+</head>
+<body>
+    <h1>{{ group.name }}</h1>
+    <p>Category: {{ group.category }}</p>
+    <p>{{ group.description }}</p>
+    <p>Created by: {{ group.creator.username if group.creator else 'N/A' }} on {{ group.created_at.strftime('%Y-%m-%d') }}</p>
+
+    {% if current_user.is_authenticated %}
+        {% if is_member %}
+            <p>You are a member of this group.</p>
+            <form method="POST" action="{{ url_for('leave_group', group_id=group.id) }}" style="display:inline;">
+                <button type="submit">Leave Group</button>
+            </form>
+        {% else %}
+            <form method="POST" action="{{ url_for('join_group', group_id=group.id) }}" style="display:inline;">
+                <button type="submit">Join Group</button>
+            </form>
+        {% endif %}
+    {% else %}
+        <p><a href="{{ url_for('login', next=request.url) }}">Login to join this group</a></p>
+    {% endif %}
+
+    <h2>Members ({{ members|length }})</h2>
+    <ul>
+    {% for member in members %}
+        <li>{{ member.username }}</li>
+    {% else %}
+        <p>No members yet.</p>
+    {% endfor %}
+    </ul>
+
+    {% if is_member %}
+    <h2>Create New Post</h2>
+    <form method="POST" action="{{ url_for('create_post', group_id=group.id) }}">
+        <div>
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div>
+            <label for="content">Content:</label>
+            <textarea id="content" name="content" rows="5" required></textarea>
+        </div>
+        <div>
+            <button type="submit">Submit Post</button>
+        </div>
+    </form>
+    {% endif %}
+
+    <h2>Recent Posts</h2>
+    {% if posts_pagination.items %}
+        <ul>
+        {% for post in posts_pagination.items %}
+            <li>
+                <h3>{{ post.title }}</h3>
+                <p>By: {{ post.author.username }} on {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                <p>{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</p>
+                <p><a href="{{ url_for('post_detail', post_id=post.id) }}">Read more and view comments ({{ post.comments.count() }})</a></p>
+            </li>
+        {% endfor %}
+        </ul>
+        <!-- Pagination links for posts -->
+        <div>
+            {% if posts_pagination.has_prev %}<a href="{{ url_for('group_detail', group_id=group.id, page=posts_pagination.prev_num) }}">Previous Posts</a>{% endif %}
+            Page {{ posts_pagination.page }} of {{ posts_pagination.pages }}.
+            {% if posts_pagination.has_next %}<a href="{{ url_for('group_detail', group_id=group.id, page=posts_pagination.next_num) }}">Next Posts</a>{% endif %}
+        </div>
+    {% else %}
+        <p>No posts in this group yet.</p>
+    {% endif %}
+    
+    <h2>Upcoming Sessions</h2>
+    {% if sessions %}
+        <ul>
+        {% for session in sessions %}
+            <li>
+                <strong>{{ session.title }}</strong> at {{ session.scheduled_time.strftime('%Y-%m-%d %H:%M') }}
+                {% if session.location %}({{ session.location }}){% endif %}
+                <p>{{ session.description }}</p>
+            </li>
+        {% else %}
+            <p>No upcoming sessions scheduled.</p>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No upcoming sessions scheduled.</p>
+    {% endif %}
+    
+    <p><a href="{{ url_for('groups') }}">Back to Groups</a></p>
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>
