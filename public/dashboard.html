@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>User Dashboard</h1>
+    <p>Welcome, {{ current_user.username }}!</p>
+    
+    <h2>My Groups</h2>
+    {% if user_groups %}
+        <ul>
+        {% for group in user_groups %}
+            <li><a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></li>
+        {% else %}
+            <p>You haven't joined any groups yet.</p>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>You haven't joined any groups yet. <a href="{{ url_for('groups') }}">Find groups</a></p>
+    {% endif %}
+
+    <h2>Upcoming Sessions</h2>
+    {% if upcoming_sessions %}
+        <ul>
+        {% for session in upcoming_sessions %}
+            <li>{{ session.title }} in {{ session.group.name }} at {{ session.scheduled_time.strftime('%Y-%m-%d %H:%M') }}</li>
+        {% else %}
+             <p>No upcoming sessions for your groups.</p>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No upcoming sessions found.</p>
+    {% endif %}
+    
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>

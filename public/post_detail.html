@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ post.title }}</title>
+</head>
+<body>
+    <h1>{{ post.title }}</h1>
+    <p><strong>Author:</strong> {{ post.author.username }}</p>
+    <p><strong>Published on:</strong> {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+    {% if post.group %}
+    <p><strong>Group:</strong> <a href="{{ url_for('group_detail', group_id=post.group_id) }}">{{ post.group.name }}</a></p>
+    {% endif %}
+    <hr>
+    <div>
+        {{ post.content | safe }} <!-- Use safe if content can contain HTML, otherwise escape -->
+    </div>
+    <hr>
+
+    <h2>Comments ({{ comments|length }})</h2>
+    {% if comments %}
+        <ul>
+        {% for comment in comments %}
+            <li>
+                <p>{{ comment.content }}</p>
+                <small>By: {{ comment.author.username }} on {{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+            </li>
+        {% else %}
+            <p>No comments yet. Be the first to comment!</p>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No comments yet. Be the first to comment!</p>
+    {% endif %}
+    
+    {% if current_user.is_authenticated %}
+    <h3>Add a Comment</h3>
+    <form method="POST" action="{{ url_for('create_comment', post_id=post.id) }}">
+        <div>
+            <label for="comment_content">Your Comment:</label>
+            <textarea id="comment_content" name="content" rows="3" required></textarea>
+        </div>
+        <div>
+            <button type="submit">Submit Comment</button>
+        </div>
+    </form>
+    {% else %}
+    <p><a href="{{ url_for('login', next=request.url) }}">Login to add a comment.</a></p>
+    {% endif %}
+
+    <p><a href="{{ url_for('group_detail', group_id=post.group_id) if post.group_id else url_for('home') }}">Back to Group / Home</a></p>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>

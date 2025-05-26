@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+</head>
+<body>
+    <h1>Admin Panel</h1>
+    <p>Welcome, {{ current_user.username }}!</p>
+
+    <h2>Site Stats</h2>
+    <p>Total Users: {{ users_count }}</p>
+    <p>Total Study Groups: {{ groups_count }}</p>
+
+    <h2>Contact Messages</h2>
+    {% if contacts %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Message</th>
+                    <th>Received At</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for contact in contacts %}
+                <tr>
+                    <td>{{ contact.id }}</td>
+                    <td>{{ contact.name }}</td>
+                    <td>{{ contact.email }}</td>
+                    <td>{{ contact.message[:100] }}{% if contact.message|length > 100 %}...{% endif %}</td>
+                    <td>{{ contact.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ 'Read' if contact.is_read else 'Unread' }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No contact messages.</p>
+    {% endif %}
+    
+    <p><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></p>
+</body>
+</html>
