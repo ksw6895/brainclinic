@@ -365,11 +365,14 @@ def create_tables_and_seed_data():
 # Database initialization needs to be handled differently for serverless.
 # For now, we can call it manually or via a separate script for local dev.
 if __name__ == '__main__':
-    create_tables_and_seed_data() # Call the helper function
+    # create_tables_and_seed_data() # Call is now above, will run before local dev server starts
     app.run(debug=True)
 
 # Expose the Flask app instance for Vercel
-application = app
+application = app 
+
+# Initialize database and tables on app startup for serverless environment
+create_tables_and_seed_data() # The function handles its own app context
 
 @app.route('/user/<username>')
 @login_required # Or remove if profiles can be public
